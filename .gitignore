@@ -58,3 +58,6 @@ target/
 
 # keys
 key.py
+
+# ipython
+.ipynb_checkpoints
