@@ -60,4 +60,4 @@ target/
 key.py
 
 # ipython
-.ipynb_checkpoints/
+.ipynb_checkpoints
