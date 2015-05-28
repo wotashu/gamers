@@ -1,18 +1,18 @@
 
 # coding: utf-8
 
-# In[7]:
+# In[1]:
 
 import pandas as pd
 
 
-# In[8]:
+# In[2]:
 
 # import Giant Bomb
 gb = pd.read_csv("giantbomb/giantbomb_reviews.csv", encoding='utf-8')
 
 
-# In[9]:
+# In[4]:
 
 # import IGN
 colHeader = ['game','date','reviewer','link','review']
@@ -20,7 +20,7 @@ IGN = pd.read_csv('IGN_1.csv', names = colHeader)
 IGN['site'] = 'IGN'
 
 
-# In[10]:
+# In[67]:
 
 # import Game Spot
 colHeader2 = ['reviewer', 'date', 'game', 'link', 'score', 'platforms', 'review']
@@ -29,7 +29,7 @@ gamespot['site'] = 'GameSpot'
 gamespot['score_100'] = 10*gamespot['score']
 
 
-# In[11]:
+# In[68]:
 
 # convert date columns to datetime
 gamespot["date"] = pd.to_datetime(gamespot.date, dayfirst=True)
@@ -37,22 +37,22 @@ IGN["date"] = pd.to_datetime(IGN.date, dayfirst=True)
 gb["date"] = pd.to_datetime(gb.date, dayfirst=False)
 
 
-# In[12]:
+# In[69]:
 
 results = pd.concat([gb, IGN, gamespot], ignore_index=True)
 
 
-# In[13]:
+# In[70]:
 
 results.to_csv('results.csv', encoding='utf-8', index=False)
 
 
-# In[14]:
+# In[8]:
 
 results.shape
 
 
-# In[15]:
+# In[11]:
 
 from bs4 import BeautifulSoup
 import urllib2
@@ -62,43 +62,47 @@ import os
 import numpy as np
 
 
-# In[16]:
+# In[12]:
 
 gb_means = gb
 gb_means['review_length'] = np.nan
 
 
-# In[17]:
+# In[13]:
 
 for index, row in gb_means.iterrows():
     gb_means['review_length'][index] = len(row['review'].split())
 
 
-# In[18]:
+# In[37]:
 
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
 get_ipython().magic(u'matplotlib inline')
+from matplotlib import rcParams
+# Set inline graph size and font size
+rcParams['figure.figsize'] = (24, 24)
+rcParams['font.size'] = 12
 from pandas.tools.plotting import scatter_matrix
 matplotlib.style.use('ggplot')
 
 
-# In[19]:
+# In[14]:
 
 grouped = gb_means.groupby(['site', 'reviewer'])
 calculated_means = grouped.mean()
 
 
-# In[20]:
+# In[15]:
 
 results['review_length'] = np.nan
 for index, row in results.iterrows():
     results.loc[index, 'review_length'] = len(row['review'].split())
 
 
-# In[138]:
+# In[16]:
 
 # group by site theen reviewer
 grouped = results.groupby(['site', 'reviewer'])
@@ -110,19 +114,24 @@ grouped_size = grouped.size().order()
 by_reviewer_summary = grouped['review_length'].agg([np.sum, np.mean, np.std])
 
 
-# In[139]:
+# In[17]:
 
 # compute summary statistics on review length by reviewer
 by_reviewer_summary = grouped['review_length'].agg([np.sum, np.mean, np.std])
 
 
-# In[148]:
+# In[38]:
 
 # bar chart by mean review length
 by_reviewer_summary[['mean']].plot(kind='barh' )
 
+plt.title("Mean Review Length by Reviewer") 
+plt.xlabel("Word Count")
+plt.ylabel("Reviewer and Site") 
+plt.savefig('foo.png')
 
-# In[122]:
+
+# In[31]:
 
 # group by site
 by_site = results.groupby(['site'])
@@ -131,10 +140,14 @@ by_site_summary = by_site['review_length'].agg([np.sum, np.mean, np.std])
 print by_site_summary
 
 
-# In[136]:
+# In[35]:
 
 # bar chart by mean review length
 by_site_summary['mean'].plot(kind='bar')
+
+plt.title("Mean Review Length by Site") 
+plt.xlabel("Site Name")
+plt.ylabel("Word Count") 
 
 
 # In[50]:
@@ -142,7 +155,7 @@ by_site_summary['mean'].plot(kind='bar')
 calculated_means.to_csv('calculated_means.csv', encoding='utf-8', index=True)
 
 
-# In[81]:
+# In[52]:
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -153,7 +166,7 @@ from pandas.tools.plotting import scatter_matrix
 matplotlib.style.use('ggplot')
 
 
-# In[54]:
+# In[53]:
 
 # get scatter of scores and review length
 x = results['score_100']
@@ -178,15 +191,16 @@ plt.ylabel('length of review')
 plt.title('Review Score vs. Length of review')
 plt.legend()
 plt.show()
+plt.savefig('foo.png')
 
 
-# In[110]:
+# In[54]:
 
 grouped = results.groupby(['site', 'reviewer'])
 calculated_means = grouped.mean().median()
 
 
-# In[32]:
+# In[55]:
 
 sites = ['Giant Bomb', 'IGN', 'GameSpot']
 
@@ -197,18 +211,28 @@ import seaborn as sns
 sns.lmplot("review_length", "score_100", data=calculated_means, fit_reg=False)
 
 
-# In[70]:
+# In[83]:
 
 groups = results.groupby(['site'])
 groups_mean = groups.mean()
 
 
-# In[73]:
+# In[84]:
 
 groups_mean
 
 
-# In[ ]:
+# In[82]:
+
+groups.reviewer.nunique()
 
 
+# In[88]:
+
+groups.game.nunique()
+
+
+# In[89]:
+
+groups.head()
 
